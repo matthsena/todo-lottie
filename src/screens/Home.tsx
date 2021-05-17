@@ -1,3 +1,4 @@
+/* eslint-disable react-native/no-inline-styles */
 import React, { useRef, useState } from 'react';
 import {
   StatusBar,
@@ -6,6 +7,7 @@ import {
   View,
   Dimensions,
   FlatList,
+  TouchableOpacity,
 } from 'react-native';
 import {
   Container,
@@ -17,34 +19,64 @@ import { RoundedButton, Button, ButtonText } from '../components/Button';
 import LottieView from 'lottie-react-native';
 import BottomSheet from 'reanimated-bottom-sheet';
 import { Input } from '../components/Input';
+import uuid from 'react-native-uuid';
 
 const { height, width } = Dimensions.get('window');
 
 interface Tasks {
   title: string;
   desc?: string;
+  id: string;
 }
 
 const Home = () => {
   const appearanceMode = useColorScheme();
 
   const sheetRef = useRef<any>(null);
+  const sheetTask = useRef<any>(null);
 
   const [taskTitle, setTaskTitle] = useState<string>('');
   const [taskDesc, setTaskDesc] = useState<string>('');
   const [tasks, setTask] = useState<Tasks[]>([]);
 
-  const Item = ({ title, desc }: { title: string; desc?: string }) => (
-    <View style={styles.item}>
-      <Text style={styles.title} key={desc}>
+  const [activeTask, setActiveTask] = useState<Tasks>();
+
+  const onOpenTask = (id: string) => {
+    const current = tasks.filter(e => e.id === id);
+    setActiveTask({ ...current[0] });
+
+    sheetTask?.current?.snapTo(0);
+  };
+
+  const Item = ({
+    title,
+    desc,
+    id,
+  }: {
+    title: string;
+    desc?: string;
+    id: string;
+  }) => (
+    <TouchableOpacity style={styles.item} onPress={() => onOpenTask(id)}>
+      <Text style={styles.title} key={id}>
         {title}
       </Text>
-    </View>
+    </TouchableOpacity>
   );
 
-  const renderItem = ({ title, desc }: { title: string; desc?: string }) => (
-    <Item title={title} desc={desc} />
-  );
+  const renderItem = ({
+    title,
+    desc,
+    id,
+  }: {
+    title: string;
+    desc?: string;
+    id: string;
+  }) => <Item title={title} desc={desc} id={id} />;
+
+  React.useEffect(() => {
+    console.log(tasks);
+  }, [tasks]);
 
   const onSave = () => {
     if (taskTitle && taskDesc) {
@@ -53,6 +85,7 @@ const Home = () => {
         {
           title: taskTitle,
           desc: taskDesc,
+          id: String(uuid.v4()),
         },
       ]);
 
@@ -62,6 +95,40 @@ const Home = () => {
       sheetRef?.current?.snapTo(1);
     }
   };
+
+  const finishTask = (id: string) => {
+    const items = tasks.filter(e => e.id !== id);
+
+    setTask([...items]);
+
+    sheetTask?.current?.snapTo(1);
+
+    setActiveTask({} as Tasks);
+  };
+
+  const renderActiveTask = () => (
+    <BottomSheetContainer style={styles.panel}>
+      <Text style={{ ...styles.panelTitle, textAlign: 'left' }}>
+        {activeTask?.title}
+      </Text>
+      <Text
+        style={{ ...styles.panelSubtitle, textAlign: 'left', fontSize: 18 }}>
+        {activeTask?.desc}
+      </Text>
+
+      <LottieView
+        source={require('../lottiefiles/success.json')}
+        autoPlay
+        loop
+      />
+      <Spacer />
+      <Button
+        style={styles.modalButton}
+        onPress={() => finishTask(activeTask?.id as string)}>
+        <ButtonText>Concluir</ButtonText>
+      </Button>
+    </BottomSheetContainer>
+  );
 
   const renderContent = () => (
     <BottomSheetContainer style={styles.panel}>
@@ -108,9 +175,9 @@ const Home = () => {
         <FlatList
           data={tasks}
           renderItem={({ item }) =>
-            renderItem({ title: item.title, desc: item.desc })
+            renderItem({ title: item.title, desc: item.desc, id: item.id })
           }
-          keyExtractor={item => item.title}
+          keyExtractor={item => item.id}
         />
       ) : (
         <View style={styles.notFountContent}>
@@ -131,6 +198,16 @@ const Home = () => {
         ref={sheetRef}
         snapPoints={[height * 0.8, 0]}
         renderContent={renderContent}
+        renderHeader={renderHeader}
+        initialSnap={1}
+        enabledGestureInteraction={true}
+        enabledContentGestureInteraction={false}
+      />
+
+      <BottomSheet
+        ref={sheetTask}
+        snapPoints={[height * 0.8, 0]}
+        renderContent={renderActiveTask}
         renderHeader={renderHeader}
         initialSnap={1}
         enabledGestureInteraction={true}
