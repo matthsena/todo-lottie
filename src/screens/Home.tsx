@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import { Container } from '../components/Container';
 import { Text } from '../components/Text';
+import { RoundedButton } from '../components/Button';
 import LottieView from 'lottie-react-native';
 
 const { width } = Dimensions.get('window');
@@ -31,6 +32,10 @@ const Home = () => {
         />
         <Text style={styles.notFoundText}>Sem tarefas por enquanto...</Text>
       </View>
+
+      <RoundedButton>
+        <LottieView source={require('../lottiefiles/add.json')} autoPlay loop />
+      </RoundedButton>
     </Container>
   );
 };
