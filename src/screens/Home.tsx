@@ -1,33 +1,60 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   StatusBar,
   useColorScheme,
   StyleSheet,
   View,
   Dimensions,
-  Modal,
 } from 'react-native';
 import { Container, Spacer } from '../components/Container';
 import { Text } from '../components/Text';
-import { Button, ButtonText, RoundedButton } from '../components/Button';
-import { Input } from '../components/Input';
+import { RoundedButton, Button, ButtonText } from '../components/Button';
 import LottieView from 'lottie-react-native';
-
+import BottomSheet from 'reanimated-bottom-sheet';
+import { Input } from '../components/Input';
 const { height, width } = Dimensions.get('window');
 
 const Home = () => {
-  const [modalVisible, setModalVisible] = useState(false);
-
   const appearanceMode = useColorScheme();
+  const sheetRef = React.useRef<any>(null);
 
   const onSave = () => {
-    setModalVisible(false);
+    sheetRef?.current?.snapTo(1);
   };
+
+  const renderContent = () => (
+    <>
+      <View style={styles.panel}>
+        <Text style={styles.panelTitle}>Adicionar nova tarefa</Text>
+        <Text style={styles.panelSubtitle}>
+          Crie e organize novas tarefas a serem realizadas
+        </Text>
+        <Input placeholder="Titulo da tarefa" maxLength={100} />
+        <Input
+          placeholder="Descrição (Opcional)"
+          multiline={true}
+          numberOfLines={4}
+          maxLength={500}
+        />
+        <Spacer />
+        <Button style={styles.modalButton} onPress={() => onSave()}>
+          <ButtonText>Salvar</ButtonText>
+        </Button>
+      </View>
+    </>
+  );
+
+  const renderHeader = () => (
+    <View style={styles.header}>
+      <View style={styles.panelHeader}>
+        <View style={styles.panelHandle} />
+      </View>
+    </View>
+  );
 
   return (
     <Container>
       <StatusBar barStyle={'light-content'} />
-
       <View style={styles.notFountContent}>
         <LottieView
           source={
@@ -41,32 +68,17 @@ const Home = () => {
         <Text style={styles.notFoundText}>Sem tarefas por enquanto...</Text>
       </View>
 
-      <View>
-        <Modal animationType="fade" transparent={true} visible={modalVisible}>
-          <View style={styles.modalView}>
-            <Text style={styles.modalText}>Adicione uma nova tarefa:</Text>
-            <Input
-              style={styles.modalInput}
-              placeholder="Titulo da tarefa"
-              placeholderTextColor="rgba(0, 0, 0, 0.5)"
-            />
+      <BottomSheet
+        ref={sheetRef}
+        snapPoints={[height * 0.8, 0]}
+        renderContent={renderContent}
+        renderHeader={renderHeader}
+        initialSnap={1}
+        enabledGestureInteraction={true}
+        enabledContentGestureInteraction={false}
+      />
 
-            <Input
-              style={styles.modalInput}
-              placeholder="Descrição (opcional)"
-              placeholderTextColor="rgba(0, 0, 0, 0.5)"
-              multiline={true}
-              numberOfLines={4}
-            />
-            <Spacer />
-            <Button style={styles.modalButton} onPress={() => onSave()}>
-              <ButtonText>Salvar</ButtonText>
-            </Button>
-          </View>
-        </Modal>
-      </View>
-
-      <RoundedButton onPress={() => setModalVisible(true)}>
+      <RoundedButton onPress={() => sheetRef?.current?.snapTo(0)}>
         <LottieView source={require('../lottiefiles/add.json')} autoPlay loop />
       </RoundedButton>
     </Container>
@@ -84,35 +96,42 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     opacity: 0.65,
   },
-  modalView: {
-    position: 'absolute',
-    width: width * 0.8,
-    left: width * 0.1,
-    top: height * 0.5,
-    backgroundColor: '#eee',
-    borderRadius: 16,
-    alignItems: 'center',
-    borderColor: 'rgba(0, 0, 0, 0.35)',
-    borderWidth: 0.2,
-    padding: 16,
-  },
-  modalText: {
-    marginBottom: 16,
-    fontSize: 16,
-    color: '#000',
+  modalButton: {
+    width: width - 32,
     alignSelf: 'flex-start',
   },
-  modalButton: {
-    marginBottom: 0,
-    width: width * 0.8 - 32,
+  panel: {
+    height: height * 0.8,
+    padding: 16,
+    backgroundColor: '#eee',
   },
-  modalInput: {
-    width: width * 0.8 - 32,
-    borderColor: 'rgba(0, 0, 0, 0.35)',
-    borderWidth: 0.2,
-    fontWeight: 'normal',
-    textAlign: 'left',
-    paddingLeft: 16,
+  header: {
+    backgroundColor: '#eee',
+    shadowColor: '#000000',
+    paddingTop: 20,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+  },
+  panelHeader: {
+    alignItems: 'center',
+  },
+  panelHandle: {
+    width: 40,
+    height: 6,
+    borderRadius: 4,
+    backgroundColor: '#00000040',
+    marginBottom: 10,
+  },
+  panelTitle: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  panelSubtitle: {
+    fontSize: 16,
+    color: 'gray',
+    marginVertical: 8,
+    textAlign: 'center',
   },
 });
 
