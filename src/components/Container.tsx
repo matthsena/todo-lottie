@@ -13,3 +13,8 @@ export const Container = styled.SafeAreaView`
 export const Spacer = styled.View`
   flex: 1;
 `;
+
+export const BottomSheetContainer = styled.View`
+  background-color: ${({ theme }: { theme: ThemeProviderType }) =>
+    theme.colors.bottomSheet};
+`;

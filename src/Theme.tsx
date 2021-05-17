@@ -7,6 +7,7 @@ export interface ThemeProviderType {
     primary: string;
     font: string;
     background: string;
+    bottomSheet: string;
   };
 }
 
@@ -15,6 +16,7 @@ const lightTheme: ThemeProviderType = {
     primary: '#0000e8',
     font: '#000',
     background: '#FFF',
+    bottomSheet: '#EEE',
   },
 };
 
@@ -23,6 +25,7 @@ const darkTheme: ThemeProviderType = {
     primary: '#0000e8',
     font: '#FFF',
     background: '#000',
+    bottomSheet: '#141414',
   },
 };
 

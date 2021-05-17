@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import {
   StatusBar,
   useColorScheme,
@@ -6,50 +6,89 @@ import {
   View,
   Dimensions,
 } from 'react-native';
-import { Container, Spacer } from '../components/Container';
+import {
+  Container,
+  Spacer,
+  BottomSheetContainer,
+} from '../components/Container';
 import { Text } from '../components/Text';
 import { RoundedButton, Button, ButtonText } from '../components/Button';
 import LottieView from 'lottie-react-native';
 import BottomSheet from 'reanimated-bottom-sheet';
 import { Input } from '../components/Input';
+
 const { height, width } = Dimensions.get('window');
+
+interface Tasks {
+  title: string;
+  desc?: string;
+}
 
 const Home = () => {
   const appearanceMode = useColorScheme();
-  const sheetRef = React.useRef<any>(null);
+
+  const sheetRef = useRef<any>(null);
+
+  const [taskTitle, setTaskTitle] = useState<string>('');
+  const [taskDesc, setTaskDesc] = useState<string>('');
+  const [tasks, setTask] = useState<Tasks[]>([]);
+
+  useEffect(() => {
+    console.log(tasks);
+  }, [tasks]);
 
   const onSave = () => {
-    sheetRef?.current?.snapTo(1);
+    if (taskTitle && taskDesc) {
+      setTask([
+        ...tasks,
+        {
+          title: taskTitle,
+          desc: taskDesc,
+        },
+      ]);
+
+      setTaskTitle('');
+      setTaskDesc('');
+
+      sheetRef?.current?.snapTo(1);
+    }
   };
 
   const renderContent = () => (
-    <>
-      <View style={styles.panel}>
-        <Text style={styles.panelTitle}>Adicionar nova tarefa</Text>
-        <Text style={styles.panelSubtitle}>
-          Crie e organize novas tarefas a serem realizadas
-        </Text>
-        <Input placeholder="Titulo da tarefa" maxLength={100} />
-        <Input
-          placeholder="Descrição (Opcional)"
-          multiline={true}
-          numberOfLines={4}
-          maxLength={500}
-        />
-        <Spacer />
-        <Button style={styles.modalButton} onPress={() => onSave()}>
-          <ButtonText>Salvar</ButtonText>
-        </Button>
-      </View>
-    </>
+    <BottomSheetContainer style={styles.panel}>
+      <Text style={styles.panelTitle}>Adicionar nova tarefa</Text>
+      <Text style={styles.panelSubtitle}>
+        Crie e organize novas tarefas a serem realizadas
+      </Text>
+      <Input
+        placeholder="Titulo da tarefa"
+        maxLength={100}
+        placeholderTextColor={'#141414'}
+        onChangeText={setTaskTitle}
+        value={taskTitle}
+      />
+      <Input
+        placeholder="Descrição (Opcional)"
+        multiline={true}
+        numberOfLines={4}
+        maxLength={500}
+        placeholderTextColor={'#141414'}
+        value={taskDesc}
+        onChangeText={setTaskDesc}
+      />
+      <Spacer />
+      <Button style={styles.modalButton} onPress={() => onSave()}>
+        <ButtonText>Salvar</ButtonText>
+      </Button>
+    </BottomSheetContainer>
   );
 
   const renderHeader = () => (
-    <View style={styles.header}>
+    <BottomSheetContainer style={styles.header}>
       <View style={styles.panelHeader}>
         <View style={styles.panelHandle} />
       </View>
-    </View>
+    </BottomSheetContainer>
   );
 
   return (
@@ -103,10 +142,8 @@ const styles = StyleSheet.create({
   panel: {
     height: height * 0.8,
     padding: 16,
-    backgroundColor: '#eee',
   },
   header: {
-    backgroundColor: '#eee',
     shadowColor: '#000000',
     paddingTop: 20,
     borderTopLeftRadius: 20,
@@ -119,7 +156,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 6,
     borderRadius: 4,
-    backgroundColor: '#00000040',
+    backgroundColor: '#00000050',
     marginBottom: 10,
   },
   panelTitle: {
