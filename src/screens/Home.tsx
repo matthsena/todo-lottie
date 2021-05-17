@@ -1,10 +1,11 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState } from 'react';
 import {
   StatusBar,
   useColorScheme,
   StyleSheet,
   View,
   Dimensions,
+  FlatList,
 } from 'react-native';
 import {
   Container,
@@ -33,9 +34,17 @@ const Home = () => {
   const [taskDesc, setTaskDesc] = useState<string>('');
   const [tasks, setTask] = useState<Tasks[]>([]);
 
-  useEffect(() => {
-    console.log(tasks);
-  }, [tasks]);
+  const Item = ({ title, desc }: { title: string; desc?: string }) => (
+    <View style={styles.item}>
+      <Text style={styles.title} key={desc}>
+        {title}
+      </Text>
+    </View>
+  );
+
+  const renderItem = ({ title, desc }: { title: string; desc?: string }) => (
+    <Item title={title} desc={desc} />
+  );
 
   const onSave = () => {
     if (taskTitle && taskDesc) {
@@ -94,18 +103,29 @@ const Home = () => {
   return (
     <Container>
       <StatusBar barStyle={'light-content'} />
-      <View style={styles.notFountContent}>
-        <LottieView
-          source={
-            appearanceMode === 'dark'
-              ? require('../lottiefiles/empty-file-dark.json')
-              : require('../lottiefiles/empty-file.json')
+
+      {tasks.length ? (
+        <FlatList
+          data={tasks}
+          renderItem={({ item }) =>
+            renderItem({ title: item.title, desc: item.desc })
           }
-          autoPlay
-          loop
+          keyExtractor={item => item.title}
         />
-        <Text style={styles.notFoundText}>Sem tarefas por enquanto...</Text>
-      </View>
+      ) : (
+        <View style={styles.notFountContent}>
+          <LottieView
+            source={
+              appearanceMode === 'dark'
+                ? require('../lottiefiles/empty-file-dark.json')
+                : require('../lottiefiles/empty-file.json')
+            }
+            autoPlay
+            loop
+          />
+          <Text style={styles.notFoundText}>Sem tarefas por enquanto...</Text>
+        </View>
+      )}
 
       <BottomSheet
         ref={sheetRef}
@@ -169,6 +189,17 @@ const styles = StyleSheet.create({
     color: 'gray',
     marginVertical: 8,
     textAlign: 'center',
+  },
+  item: {
+    width: width,
+    padding: 16,
+    marginVertical: 4,
+    marginHorizontal: 0,
+    borderBottomWidth: 0.5,
+    borderBottomColor: 'gray',
+  },
+  title: {
+    fontSize: 22,
   },
 });
 
