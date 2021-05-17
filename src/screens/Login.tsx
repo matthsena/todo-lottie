@@ -1,44 +1,47 @@
 import React from 'react';
 import { View, StyleSheet, useColorScheme, Dimensions } from 'react-native';
 import LottieView from 'lottie-react-native';
-import Theme from '../Theme';
 import { Container, Spacer } from '../components/Container';
 import { Text } from '../components/Text';
 import { Button, ButtonText } from '../components/Button';
 
+import { Props } from '../../routes';
+
 const { width } = Dimensions.get('window');
 
-const App = () => {
+const App = (props: Props) => {
   const appearanceMode = useColorScheme();
 
+  const onGoHome = () => {
+    props.navigation.navigate('Home');
+  };
+
   return (
-    <Theme>
-      <Container>
+    <Container>
+      <LottieView
+        source={
+          appearanceMode === 'dark'
+            ? require('../lottiefiles/blue-man-dark.json')
+            : require('../lottiefiles/blue-man.json')
+        }
+        autoPlay
+        loop
+      />
+      <View style={styles.textContainer}>
+        <Text style={styles.title}>ToDo Lottie</Text>
+        <Text style={styles.subtitle}>App desenvolvido com Lottie</Text>
+      </View>
+      <Spacer />
+      <Button onPress={() => onGoHome()}>
         <LottieView
-          source={
-            appearanceMode === 'dark'
-              ? require('../lottiefiles/blue-man-dark.json')
-              : require('../lottiefiles/blue-man.json')
-          }
+          source={require('../lottiefiles/arrow.json')}
           autoPlay
           loop
+          style={styles.buttonAnimation}
         />
-        <View style={styles.textContainer}>
-          <Text style={styles.title}>ToDo Lottie</Text>
-          <Text style={styles.subtitle}>App desenvolvido com Lottie</Text>
-        </View>
-        <Spacer />
-        <Button>
-          <LottieView
-            source={require('../lottiefiles/arrow.json')}
-            autoPlay
-            loop
-            style={styles.buttonAnimation}
-          />
-          <ButtonText>Iniciar</ButtonText>
-        </Button>
-      </Container>
-    </Theme>
+        <ButtonText>Iniciar</ButtonText>
+      </Button>
+    </Container>
   );
 };
 
