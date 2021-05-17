@@ -31,9 +31,7 @@ export default function Theme({ children }: { children: JSX.Element }) {
 
   return (
     <ThemeProvider theme={appearanceMode === 'dark' ? darkTheme : lightTheme}>
-      <StatusBar
-        barStyle={appearanceMode === 'dark' ? 'light-content' : 'dark-content'}
-      />
+      <StatusBar barStyle={'light-content'} />
       {children}
     </ThemeProvider>
   );

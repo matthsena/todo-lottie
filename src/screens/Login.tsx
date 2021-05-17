@@ -1,5 +1,11 @@
 import React from 'react';
-import { View, StyleSheet, useColorScheme, Dimensions } from 'react-native';
+import {
+  View,
+  StyleSheet,
+  useColorScheme,
+  Dimensions,
+  StatusBar,
+} from 'react-native';
 import LottieView from 'lottie-react-native';
 import { Container, Spacer } from '../components/Container';
 import { Text } from '../components/Text';
@@ -18,6 +24,9 @@ const App = (props: Props) => {
 
   return (
     <Container>
+      <StatusBar
+        barStyle={appearanceMode === 'dark' ? 'light-content' : 'dark-content'}
+      />
       <LottieView
         source={
           appearanceMode === 'dark'
