@@ -73,7 +73,7 @@ const Home = () => {
 
   return (
     <Container>
-      <StatusBar barStyle={'light-content'} />
+      <StatusBar barStyle={'light-content'} backgroundColor={'#0000e8'} />
       {tasks.length ? (
         <FlatList
           data={tasks}
