@@ -1,4 +1,3 @@
-/* eslint-disable react-native/no-inline-styles */
 import React, { useRef, useState } from 'react';
 import {
   StatusBar,
@@ -20,6 +19,7 @@ import BottomSheet from 'reanimated-bottom-sheet';
 import { Input } from '../components/Input';
 import uuid from 'react-native-uuid';
 import TaskList from '../components/TaskList';
+import ActiveTask from '../components/ActiveTask';
 
 const { height, width } = Dimensions.get('window');
 
@@ -38,9 +38,7 @@ const Home = () => {
   const [taskTitle, setTaskTitle] = useState<string>('');
   const [taskDesc, setTaskDesc] = useState<string>('');
   const [tasks, setTask] = useState<Tasks[]>([]);
-
   const [activeTask, setActiveTask] = useState<Tasks>();
-  const [successTask, setSuccessTask] = useState<boolean>(false);
 
   const onOpenTask = (id: string) => {
     const current = tasks.filter(e => e.id === id);
@@ -72,42 +70,12 @@ const Home = () => {
 
     setTask([...items]);
 
-    setSuccessTask(true);
-
     setTimeout(() => {
       sheetTask?.current?.snapTo(1);
 
       setActiveTask({} as Tasks);
-
-      setSuccessTask(false);
     }, 3500);
   };
-
-  const renderActiveTask = () => (
-    <BottomSheetContainer style={styles.panel}>
-      <Text style={{ ...styles.panelTitle, textAlign: 'left' }}>
-        {activeTask?.title}
-      </Text>
-      <Text
-        style={{ ...styles.panelSubtitle, textAlign: 'left', fontSize: 18 }}>
-        {activeTask?.desc}
-      </Text>
-
-      {successTask && (
-        <LottieView
-          source={require('../lottiefiles/success.json')}
-          autoPlay
-          loop
-        />
-      )}
-      <Spacer />
-      <Button
-        style={styles.modalButton}
-        onPress={() => finishTask(activeTask?.id as string)}>
-        <ButtonText>Concluir</ButtonText>
-      </Button>
-    </BottomSheetContainer>
-  );
 
   const renderContent = () => (
     <BottomSheetContainer style={styles.panel}>
@@ -191,7 +159,12 @@ const Home = () => {
       <BottomSheet
         ref={sheetTask}
         snapPoints={[height * 0.8, 0]}
-        renderContent={renderActiveTask}
+        renderContent={() => (
+          <ActiveTask
+            activeTask={activeTask as Tasks}
+            finishTask={finishTask}
+          />
+        )}
         renderHeader={renderHeader}
         initialSnap={1}
         enabledGestureInteraction={true}
