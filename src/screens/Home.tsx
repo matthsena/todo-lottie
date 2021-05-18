@@ -7,7 +7,6 @@ import {
   View,
   Dimensions,
   FlatList,
-  TouchableOpacity,
 } from 'react-native';
 import {
   Container,
@@ -20,6 +19,7 @@ import LottieView from 'lottie-react-native';
 import BottomSheet from 'reanimated-bottom-sheet';
 import { Input } from '../components/Input';
 import uuid from 'react-native-uuid';
+import TaskList from '../components/TaskList';
 
 const { height, width } = Dimensions.get('window');
 
@@ -40,6 +40,7 @@ const Home = () => {
   const [tasks, setTask] = useState<Tasks[]>([]);
 
   const [activeTask, setActiveTask] = useState<Tasks>();
+  const [successTask, setSuccessTask] = useState<boolean>(false);
 
   const onOpenTask = (id: string) => {
     const current = tasks.filter(e => e.id === id);
@@ -47,36 +48,6 @@ const Home = () => {
 
     sheetTask?.current?.snapTo(0);
   };
-
-  const Item = ({
-    title,
-    desc,
-    id,
-  }: {
-    title: string;
-    desc?: string;
-    id: string;
-  }) => (
-    <TouchableOpacity style={styles.item} onPress={() => onOpenTask(id)}>
-      <Text style={styles.title} key={id}>
-        {title}
-      </Text>
-    </TouchableOpacity>
-  );
-
-  const renderItem = ({
-    title,
-    desc,
-    id,
-  }: {
-    title: string;
-    desc?: string;
-    id: string;
-  }) => <Item title={title} desc={desc} id={id} />;
-
-  React.useEffect(() => {
-    console.log(tasks);
-  }, [tasks]);
 
   const onSave = () => {
     if (taskTitle && taskDesc) {
@@ -101,9 +72,15 @@ const Home = () => {
 
     setTask([...items]);
 
-    sheetTask?.current?.snapTo(1);
+    setSuccessTask(true);
 
-    setActiveTask({} as Tasks);
+    setTimeout(() => {
+      sheetTask?.current?.snapTo(1);
+
+      setActiveTask({} as Tasks);
+
+      setSuccessTask(false);
+    }, 3500);
   };
 
   const renderActiveTask = () => (
@@ -116,11 +93,13 @@ const Home = () => {
         {activeTask?.desc}
       </Text>
 
-      <LottieView
-        source={require('../lottiefiles/success.json')}
-        autoPlay
-        loop
-      />
+      {successTask && (
+        <LottieView
+          source={require('../lottiefiles/success.json')}
+          autoPlay
+          loop
+        />
+      )}
       <Spacer />
       <Button
         style={styles.modalButton}
@@ -175,7 +154,12 @@ const Home = () => {
         <FlatList
           data={tasks}
           renderItem={({ item }) =>
-            renderItem({ title: item.title, desc: item.desc, id: item.id })
+            TaskList({
+              title: item.title,
+              desc: item.desc,
+              id: item.id,
+              onOpenTask: onOpenTask,
+            })
           }
           keyExtractor={item => item.id}
         />
