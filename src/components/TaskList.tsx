@@ -17,7 +17,10 @@ const Item = ({
 }) => (
   <TouchableOpacity key={id} style={styles.item} onPress={() => onOpenTask(id)}>
     <Text style={styles.title}>{title}</Text>
-    <Text style={styles.desc}>{desc?.slice(0, 50)}...</Text>
+    <Text style={styles.desc}>
+      {desc?.slice(0, 50)}
+      {String(desc).length > 50 ? '...' : ''}
+    </Text>
   </TouchableOpacity>
 );
 

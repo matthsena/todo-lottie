@@ -24,7 +24,14 @@ const ActiveTask = ({
 
   const onConclude = (id: string) => {
     setSuccessTask(true);
-    finishTask(id);
+
+    setTimeout(() => {
+      setSuccessTask(false);
+    }, 3500);
+
+    setTimeout(() => {
+      finishTask(id);
+    }, 3700);
   };
 
   return (

@@ -7,19 +7,15 @@ import {
   Dimensions,
   FlatList,
 } from 'react-native';
-import {
-  Container,
-  Spacer,
-  BottomSheetContainer,
-} from '../components/Container';
+import { Container, BottomSheetContainer } from '../components/Container';
 import { Text } from '../components/Text';
-import { RoundedButton, Button, ButtonText } from '../components/Button';
+import { RoundedButton } from '../components/Button';
 import LottieView from 'lottie-react-native';
 import BottomSheet from 'reanimated-bottom-sheet';
-import { Input } from '../components/Input';
 import uuid from 'react-native-uuid';
 import TaskList from '../components/TaskList';
 import ActiveTask from '../components/ActiveTask';
+import CreateTask from '../components/CreateTask';
 
 const { height, width } = Dimensions.get('window');
 
@@ -35,19 +31,16 @@ const Home = () => {
   const sheetRef = useRef<any>(null);
   const sheetTask = useRef<any>(null);
 
-  const [taskTitle, setTaskTitle] = useState<string>('');
-  const [taskDesc, setTaskDesc] = useState<string>('');
   const [tasks, setTask] = useState<Tasks[]>([]);
   const [activeTask, setActiveTask] = useState<Tasks>();
 
   const onOpenTask = (id: string) => {
     const current = tasks.filter(e => e.id === id);
     setActiveTask({ ...current[0] });
-
     sheetTask?.current?.snapTo(0);
   };
 
-  const onSave = () => {
+  const onSave = (taskTitle: string, taskDesc: string) => {
     if (taskTitle && taskDesc) {
       setTask([
         ...tasks,
@@ -58,9 +51,6 @@ const Home = () => {
         },
       ]);
 
-      setTaskTitle('');
-      setTaskDesc('');
-
       sheetRef?.current?.snapTo(1);
     }
   };
@@ -69,42 +59,9 @@ const Home = () => {
     const items = tasks.filter(e => e.id !== id);
 
     setTask([...items]);
-
-    setTimeout(() => {
-      sheetTask?.current?.snapTo(1);
-
-      setActiveTask({} as Tasks);
-    }, 3500);
+    setActiveTask({} as Tasks);
+    sheetTask?.current?.snapTo(1);
   };
-
-  const renderContent = () => (
-    <BottomSheetContainer style={styles.panel}>
-      <Text style={styles.panelTitle}>Adicionar nova tarefa</Text>
-      <Text style={styles.panelSubtitle}>
-        Crie e organize novas tarefas a serem realizadas
-      </Text>
-      <Input
-        placeholder="Titulo da tarefa"
-        maxLength={100}
-        placeholderTextColor={'#141414'}
-        onChangeText={setTaskTitle}
-        value={taskTitle}
-      />
-      <Input
-        placeholder="Descrição (Opcional)"
-        multiline={true}
-        numberOfLines={4}
-        maxLength={500}
-        placeholderTextColor={'#141414'}
-        value={taskDesc}
-        onChangeText={setTaskDesc}
-      />
-      <Spacer />
-      <Button style={styles.modalButton} onPress={() => onSave()}>
-        <ButtonText>Salvar</ButtonText>
-      </Button>
-    </BottomSheetContainer>
-  );
 
   const renderHeader = () => (
     <BottomSheetContainer style={styles.header}>
@@ -117,7 +74,6 @@ const Home = () => {
   return (
     <Container>
       <StatusBar barStyle={'light-content'} />
-
       {tasks.length ? (
         <FlatList
           data={tasks}
@@ -149,7 +105,7 @@ const Home = () => {
       <BottomSheet
         ref={sheetRef}
         snapPoints={[height * 0.8, 0]}
-        renderContent={renderContent}
+        renderContent={() => <CreateTask onSave={onSave} />}
         renderHeader={renderHeader}
         initialSnap={1}
         enabledGestureInteraction={true}
@@ -189,14 +145,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     opacity: 0.65,
   },
-  modalButton: {
-    width: width - 32,
-    alignSelf: 'flex-start',
-  },
-  panel: {
-    height: height * 0.8,
-    padding: 16,
-  },
   header: {
     shadowColor: '#000000',
     paddingTop: 20,
@@ -212,28 +160,6 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     backgroundColor: '#00000050',
     marginBottom: 10,
-  },
-  panelTitle: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    textAlign: 'center',
-  },
-  panelSubtitle: {
-    fontSize: 16,
-    color: 'gray',
-    marginVertical: 8,
-    textAlign: 'center',
-  },
-  item: {
-    width: width,
-    padding: 16,
-    marginVertical: 4,
-    marginHorizontal: 0,
-    borderBottomWidth: 0.5,
-    borderBottomColor: 'gray',
-  },
-  title: {
-    fontSize: 22,
   },
 });
 
